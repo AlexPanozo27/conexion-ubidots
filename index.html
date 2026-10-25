@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Conecta con Ubidots</title>
+<meta name="description" content="Página interactiva del foro: cómo se conecta un dispositivo con Ubidots IoT. Token, rutas HTTP, MQTT y TCP/UDP, generador de código y un simulador para probar.">
+<meta name="theme-color" content="#bff6e8">
+<link rel="icon" href="assets/logo-unifranz.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a class="skip" href="#equipaje">Saltar al contenido</a>
+
+<div class="topbar">
+  <a class="brand" href="#inicio"><img src="assets/logo-unifranz.png" alt="Logo de la Universidad Privada Franz Tamayo"><span>Conecta con Ubidots</span></a>
+  <nav aria-label="Secciones">
+    <a href="#equipaje">Equipaje</a><a href="#rutas">Rutas</a><a href="#itinerario">Itinerario</a>
+    <a href="#codigo">Código</a><a href="#simulador">Simulador</a><a href="#quiz">Quiz</a>
+  </nav>
+</div>
+
+<!-- ============ INICIO ============ -->
+<header class="sheet hero" id="inicio">
+  <div class="hero-grid">
+    <div>
+      <span class="kicker">Foro · Internet de las Cosas</span>
+      <h1>Conecta tu dispositivo con <span class="hl">Ubidots</span></h1>
+      <p class="lead">Un dispositivo, un token y una ruta. Aquí planeas el viaje de tu dato: eliges cómo viaja (HTTP, MQTT, TCP o UDP), armas el mensaje y lo pruebas en un simulador que puedes tocar.</p>
+      <div class="cta">
+        <a class="btn primary" href="#equipaje">Empezar el viaje</a>
+        <a class="btn ghost" href="#simulador">Ir al simulador →</a>
+      </div>
+    </div>
+    <svg class="hero-art bob" viewBox="0 0 480 380" role="img" aria-label="Una placa ESP32 envía datos por una ruta punteada hasta la nube de Ubidots">
+      <defs>
+        <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c9fff2"/><stop offset="1" stop-color="#f3fffc"/></linearGradient>
+        <linearGradient id="hill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7fe6cf"/><stop offset="1" stop-color="#4fcfb4"/></linearGradient>
+      </defs>
+      <rect width="480" height="380" fill="url(#sky)"/>
+      <circle cx="380" cy="70" r="30" fill="#ffe3b8"/>
+      <path d="M0 300 Q90 230 190 285 T360 270 T480 290 V380 H0Z" fill="url(#hill)" opacity=".75"/>
+      <path d="M0 330 Q120 280 240 325 T480 320 V380 H0Z" fill="#35bfa2"/>
+      <!-- placa -->
+      <g transform="translate(46 238)">
+        <rect width="92" height="56" rx="8" fill="#10315f"/>
+        <rect x="10" y="10" width="34" height="36" rx="4" fill="#27456f"/>
+        <rect x="52" y="12" width="28" height="12" rx="3" fill="#e9a96a"/>
+        <g fill="#c9d8ee"><rect x="8" y="-6" width="3" height="8"/><rect x="18" y="-6" width="3" height="8"/><rect x="28" y="-6" width="3" height="8"/><rect x="38" y="-6" width="3" height="8"/><rect x="48" y="-6" width="3" height="8"/><rect x="58" y="-6" width="3" height="8"/><rect x="68" y="-6" width="3" height="8"/><rect x="78" y="-6" width="3" height="8"/></g>
+        <text x="46" y="44" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="9" fill="#9fd4ff">ESP32</text>
+      </g>
+      <g fill="none" stroke="#10315f" stroke-width="3" stroke-linecap="round"><path d="M72 218 q22 -18 44 0"/><path d="M62 206 q32 -28 64 0" opacity=".6"/><path d="M52 194 q42 -38 84 0" opacity=".3"/></g>
+      <!-- ruta -->
+      <path class="dash" d="M120 238 C190 130 230 260 300 150 S350 110 372 112" fill="none" stroke="#10315f" stroke-width="3.5" stroke-linecap="round"/>
+      <circle cx="170" cy="190" r="6" fill="#e9a96a"/><circle cx="258" cy="206" r="6" fill="#e9a96a"/>
+      <!-- nube -->
+      <g transform="translate(332 60)">
+        <path d="M30 80 a24 24 0 0 1 4-47 a34 34 0 0 1 64 8 a22 22 0 0 1 2 39Z" fill="#fff" stroke="#10315f" stroke-width="3"/>
+        <g fill="#27c9ac"><rect x="36" y="56" width="10" height="14" rx="2"/><rect x="52" y="46" width="10" height="24" rx="2"/><rect x="68" y="52" width="10" height="18" rx="2" fill="#e9a96a"/><rect x="84" y="40" width="10" height="30" rx="2"/></g>
+      </g>
+      <g transform="translate(366 96)"><path d="M12 0 C-4 0 -4 22 12 40 C28 22 28 0 12 0Z" fill="#e9a96a" stroke="#10315f" stroke-width="3" transform="translate(0 -4) scale(.9)"/><circle cx="11" cy="14" r="4" fill="#fff"/></g>
+    </svg>
+  </div>
+
+  <div class="team">
+    <img src="assets/logo-unifranz.png" alt="Logo de la Universidad Privada Franz Tamayo">
+    <div>
+      <div class="uni">UNIVERSIDAD PRIVADA FRANZ TAMAYO</div>
+      <div class="fac">FACULTAD DE INGENIERÍA · INGENIERÍA DE SISTEMAS</div>
+      <div class="foro"><b>Foro:</b> (ABRetos) ¿Como se realiza la conexión con UBIDOT IoT?</div>
+      <ul>
+        <li>MARCOS ALEXANDER PANOZO PATTY</li>
+        <li>ARIO MAURICIO CHACON OROSCO</li>
+        <li>MARCOS JAVIER VARGAS CALLIZAYA</li>
+        <li>CRIS KLEBER BALLON CHIPANA</li>
+        <li>ADRIAN EDWIN AGUIRRE ROJAS</li>
+      </ul>
+      <div class="fac" style="margin-top:8px">LA PAZ - BOLIVIA · 2026</div>
+    </div>
+  </div>
+
+  <div class="dock">
+    <div class="trips" role="group" aria-label="Elige una ruta">
+      <button class="trip on" data-proto="http" type="button" aria-pressed="true">
+        <span class="pic http"><svg viewBox="0 0 64 64" fill="none" stroke="#10315f" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="32" cy="32" r="22"/><path d="M10 32h44M32 10c-10 12-10 32 0 44M32 10c10 12 10 32 0 44"/></svg></span>
+        <b>Ruta HTTP</b><small>Una petición, una respuesta</small>
+      </button>
+      <button class="trip" data-proto="mqtt" type="button" aria-pressed="false">
+        <span class="pic mqtt"><svg viewBox="0 0 64 64" fill="none" stroke="#10315f" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="32" cy="32" r="7"/><circle cx="12" cy="14" r="5"/><circle cx="52" cy="14" r="5"/><circle cx="12" cy="50" r="5"/><circle cx="52" cy="50" r="5"/><path d="M16 17l11 11M48 17L37 28M16 47l11-11M48 47L37 36"/></svg></span>
+        <b>Ruta MQTT</b><small>Conexión abierta, ida y vuelta</small>
+      </button>
+      <button class="trip" data-proto="tcp" type="button" aria-pressed="false">
+        <span class="pic tcp"><svg viewBox="0 0 64 64" fill="none" stroke="#10315f" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="10" y="12" width="44" height="12" rx="3"/><rect x="10" y="28" width="44" height="12" rx="3"/><rect x="10" y="44" width="44" height="12" rx="3"/><path d="M18 18h6M18 34h6M18 50h6"/></svg></span>
+        <b>Ruta TCP / UDP</b><small>Texto corto, poco código</small>
+      </button>
+    </div>
+    <form class="finder" id="finder" aria-label="Planea tu conexión">
+      <div class="f">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4"/></svg>
+        <div style="min-width:0"><label for="fDev">Dispositivo (label)</label><input id="fDev" type="text" value="esp32-aula" autocomplete="off" spellcheck="false"></div>
+      </div>
+      <div class="f">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12l-8 8-9-9V3h8z"/><circle cx="7.5" cy="7.5" r="1"/></svg>
+        <div style="min-width:0"><label for="fVar">Variable</label><input id="fVar" type="text" value="temperatura" autocomplete="off" spellcheck="false"></div>
+      </div>
+      <div class="f">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 18a8 8 0 1 1 16 0"/><path d="M12 18l4-6"/></svg>
+        <div style="min-width:0"><label for="fVal">Valor</label><input id="fVal" type="text" inputmode="decimal" value="24.5" autocomplete="off"></div>
+      </div>
+      <div class="f">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="18" r="2"/><circle cx="18" cy="6" r="2"/><path d="M8 18h6a4 4 0 0 0 0-8h-4a4 4 0 0 1 0-8h6"/></svg>
+        <div style="min-width:0"><label for="fProto">Ruta</label>
+          <select id="fProto"><option value="http">HTTP (REST)</option><option value="mqtt">MQTT</option><option value="tcp">TCP</option><option value="udp">UDP</option></select></div>
+      </div>
+      <button class="btn primary go" type="submit">Conectar</button>
+    </form>
+  </div>
+</header>
+
+<div style="height:64px" aria-hidden="true"></div>
+
+<!-- ============ EQUIPAJE ============ -->
+<section class="sheet rise" id="equipaje">
+  <div class="sec-head">
+    <span class="kicker">1 · Antes de salir</span>
+    <h2>Prepara tu maleta</h2>
+    <p>Conectar un dispositivo con Ubidots necesita pocas cosas. Márcalas cuando las tengas claras; la barra te dice qué tan lista está tu maleta.</p>
+  </div>
+  <div class="progress" aria-hidden="true"><i id="bagBar"></i></div>
+  <p style="font-weight:600;color:var(--navy);margin:-6px 0 14px" id="bagTxt">Maleta lista: 0 de 6</p>
+  <ul class="bag" id="bag">
+    <li tabindex="0" role="checkbox" aria-checked="false"><span class="box">✓</span><div><b>Una cuenta de Ubidots</b><span>El nivel STEM es gratuito y está pensado para aprender. Ahí vivirán tus dispositivos, variables y tableros.</span></div></li>
+    <li tabindex="0" role="checkbox" aria-checked="false"><span class="box">✓</span><div><b>Tu token</b><span>La llave de tu cuenta. Se copia desde API Credentials. Trátalo como una contraseña y no lo subas a GitHub.</span></div></li>
+    <li tabindex="0" role="checkbox" aria-checked="false"><span class="box">✓</span><div><b>Un nombre para el dispositivo</b><span>Su <i>label</i>: minúsculas, sin espacios, como <code>esp32-aula</code>. Va en la URL, el tópico o el mensaje.</span></div></li>
+    <li tabindex="0" role="checkbox" aria-checked="false"><span class="box">✓</span><div><b>Una variable por magnitud</b><span>Temperatura, humedad, ventilador… Cada una se guarda por separado y lleva su propio label.</span></div></li>
+    <li tabindex="0" role="checkbox" aria-checked="false"><span class="box">✓</span><div><b>Un dispositivo con red</b><span>Por ejemplo, una placa ESP32 con Wi-Fi, o un módem celular. Sin red no hay viaje.</span></div></li>
+    <li tabindex="0" role="checkbox" aria-checked="false"><span class="box">✓</span><div><b>Una herramienta para probar</b><span>curl, mosquitto o netcat desde tu computadora te dejan comprobar la ruta antes de programar la placa.</span></div></li>
+  </ul>
+</section>
+
+<!-- ============ RUTAS ============ -->
+<section class="sheet rise" id="rutas">
+  <div class="sec-head">
+    <span class="kicker">2 · Elige tu ruta</span>
+    <h2>Cuatro formas de llegar a Ubidots</h2>
+    <p>Todas apuntan al mismo destino, <code>industrial.api.ubidots.com</code>. Cambia el puerto, la forma de enviar el token y el tipo de respuesta.</p>
+  </div>
+  <div class="routes">
+    <article class="route">
+      <div class="pic http"><svg viewBox="0 0 64 64" fill="none" stroke="#10315f" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="32" cy="32" r="22"/><path d="M10 32h44M32 10c-10 12-10 32 0 44M32 10c10 12 10 32 0 44"/></svg></div>
+      <div class="body">
+        <span class="tag mint">HTTP · REST</span>
+        <h3>Una petición a la vez</h3>
+        <dl>
+          <dt>Puerto</dt><dd>80 (443 con TLS)</dd>
+          <dt>Ruta</dt><dd><code>POST /api/v1.6/devices/&lt;label&gt;/</code></dd>
+          <dt>Token</dt><dd>Cabecera <code>X-Auth-Token</code></dd>
+          <dt>Cuerpo</dt><dd>JSON: <code>{"temperatura": 24.5}</code></dd>
+          <dt>Respuesta</dt><dd>Un código HTTP que puedes leer</dd>
+        </dl>
+        <div class="best"><b>Ideal para:</b> enviar cada tanto y probar rápido con curl.</div>
+      </div>
+    </article>
+    <article class="route">
+      <div class="pic mqtt"><svg viewBox="0 0 64 64" fill="none" stroke="#10315f" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="32" cy="32" r="7"/><circle cx="12" cy="14" r="5"/><circle cx="52" cy="14" r="5"/><circle cx="12" cy="50" r="5"/><circle cx="52" cy="50" r="5"/><path d="M16 17l11 11M48 17L37 28M16 47l11-11M48 47L37 36"/></svg></div>
+      <div class="body">
+        <span class="tag sand">MQTT</span>
+        <h3>Una conexión que se queda abierta</h3>
+        <dl>
+          <dt>Puerto</dt><dd>1883 (8883 con TLS)</dd>
+          <dt>Usuario</dt><dd>Tu token</dd>
+          <dt>Contraseña</dt><dd>Vacía (o el mismo token)</dd>
+          <dt>Tópico</dt><dd><code>/v1.6/devices/&lt;label&gt;</code></dd>
+          <dt>Cuerpo</dt><dd>El mismo JSON de HTTP</dd>
+        </dl>
+        <div class="best"><b>Ideal para:</b> enviar seguido y <b>recibir órdenes</b> al instante.</div>
+      </div>
+    </article>
+    <article class="route">
+      <div class="pic tcp"><svg viewBox="0 0 64 64" fill="none" stroke="#10315f" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="10" y="12" width="44" height="12" rx="3"/><rect x="10" y="28" width="44" height="12" rx="3"/><rect x="10" y="44" width="44" height="12" rx="3"/><path d="M18 18h6M18 34h6M18 50h6"/></svg></div>
+      <div class="body">
+        <span class="tag">TCP · UDP</span>
+        <h3>Una línea de texto y listo</h3>
+        <dl>
+          <dt>Puerto</dt><dd>9012 (9812 con TLS)</dd>
+          <dt>Token</dt><dd>Dentro del mensaje</dd>
+          <dt>Mensaje</dt><dd><code>app/1.0|POST|TOKEN|dev=&gt;var:val|end</code></dd>
+          <dt>Límite</dt><dd>5 conexiones por segundo desde una misma IP</dd>
+          <dt>Diferencia</dt><dd>TCP confirma la entrega; UDP no</dd>
+        </dl>
+        <div class="best"><b>Ideal para:</b> módems celulares y equipos con poca memoria.</div>
+      </div>
+    </article>
+  </div>
+
+  <div class="lab">
+    <span class="lab-tag">Prueba</span>
+    <h3>¿Qué ruta me conviene?</h3>
+    <p class="sub">Contesta tres preguntas y mira la recomendación.</p>
+    <div id="quizRoute">
+      <div class="quiz-q">1. ¿Tu dispositivo debe recibir órdenes desde Ubidots?</div>
+      <div class="chips" data-q="orders"><button class="chip" type="button" data-v="si" aria-pressed="false">Sí, por ejemplo prender un ventilador</button><button class="chip" type="button" data-v="no" aria-pressed="false">No, solo envía datos</button></div>
+      <div class="quiz-q">2. ¿Cada cuánto envía datos?</div>
+      <div class="chips" data-q="freq"><button class="chip" type="button" data-v="rare" aria-pressed="false">Cada varios minutos</button><button class="chip" type="button" data-v="often" aria-pressed="false">Cada pocos segundos</button></div>
+      <div class="quiz-q">3. ¿Tiene poca memoria o solo un módem celular?</div>
+      <div class="chips" data-q="small"><button class="chip" type="button" data-v="si" aria-pressed="false">Sí</button><button class="chip" type="button" data-v="no" aria-pressed="false">No, es un ESP32 o similar</button></div>
+    </div>
+    <div class="note info" id="routeRes" aria-live="polite">Responde las tres preguntas para ver tu ruta.</div>
+  </div>
+
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Ruta</th><th>Puerto (TLS)</th><th>Dónde va el token</th><th>Cómo recibe órdenes</th><th>Confirmación</th></tr></thead>
+      <tbody>
+        <tr><td><b>HTTP</b></td><td>80 (443)</td><td>Cabecera <code>X-Auth-Token</code></td><td>Preguntando con un GET al último valor</td><td>Código HTTP en cada petición</td></tr>
+        <tr><td><b>MQTT</b></td><td>1883 (8883)</td><td>Usuario de la conexión</td><td>Suscribiéndote al tópico <code>/lv</code> de la variable</td><td>CONNACK al conectar; QoS 0 o 1</td></tr>
+        <tr><td><b>TCP</b></td><td>9012 (9812)</td><td>Dentro del mensaje</td><td>Mensaje con método <code>LV</code></td><td>La propia conexión TCP</td></tr>
+        <tr><td><b>UDP</b></td><td>9012 (9812)</td><td>Dentro del mensaje</td><td>Mensaje con método <code>LV</code></td><td>Ninguna: no sabes si llegó</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============ ITINERARIO ============ -->
+<section class="sheet rise" id="itinerario">
+  <div class="sec-head">
+    <span class="kicker">3 · Itinerario</span>
+    <h2>Seis paradas de la conexión</h2>
+    <p>Toca una parada para ver qué se hace ahí y qué suele salir mal.</p>
+  </div>
+  <div class="days" id="days" role="tablist" aria-label="Paradas"></div>
+  <div class="lab" style="margin-top:0"><ol class="stops" id="stops"></ol><div id="dayNote"></div></div>
+</section>
+
+<!-- ============ CÓDIGO ============ -->
+<section class="sheet rise" id="codigo">
+  <div class="sec-head">
+    <span class="kicker">4 · Equipaje técnico</span>
+    <h2>Genera tu código</h2>
+    <p>Rellena los datos y el código se arma solo. El token de esta página es de mentira: nunca publiques el tuyo.</p>
+  </div>
+  <div class="lab">
+    <span class="lab-tag">Prueba</span>
+    <div class="row">
+      <label class="field grow">Dispositivo (device label)<input type="text" id="gDev" value="esp32-aula" spellcheck="false"></label>
+      <label class="field grow">Variable<input type="text" id="gVar" value="temperatura" spellcheck="false"></label>
+      <label class="field">Valor<input type="text" id="gVal" value="24.5" inputmode="decimal"></label>
+      <label class="field grow">Token (ejemplo)<input type="text" id="gTok" value="BBUS-EJEMPLO-NO-REAL" spellcheck="false"></label>
+    </div>
+    <div class="tabs" id="gTabs" role="tablist">
+      <button class="on" type="button" data-k="curl">HTTP (curl)</button>
+      <button type="button" data-k="mosq">MQTT (mosquitto)</button>
+      <button type="button" data-k="nc">TCP / UDP (netcat)</button>
+      <button type="button" data-k="eh">ESP32 · HTTP</button>
+      <button type="button" data-k="em">ESP32 · MQTT</button>
+    </div>
+    <div class="out" id="gOut"><button class="copy" type="button" id="gCopy">Copiar</button><code id="gCode" style="background:none;padding:0;color:inherit;font-size:inherit"></code></div>
+    <div class="note" id="gWarn" aria-live="polite" hidden></div>
+  </div>
+</section>
+
+<!-- ============ SIMULADOR ============ -->
+<section class="sheet rise" id="simulador">
+  <div class="sec-head">
+    <span class="kicker">5 · Simulador</span>
+    <h2>Haz el viaje con tus manos</h2>
+    <p>Un dispositivo, la red y la nube de Ubidots. Es una simulación hecha en el navegador: no se conecta a Ubidots real. Sigue los retos de la derecha o prueba lo que quieras.</p>
+  </div>
+
+  <div class="sim">
+    <!-- izquierda: dispositivo -->
+    <div class="panel">
+      <h3>Dispositivo virtual <span class="pill ok" id="wifiPill">Wi-Fi conectado</span></h3>
+      <div class="field" style="margin-bottom:10px">Ruta
+        <div class="seg" id="sProto" role="group" aria-label="Ruta">
+          <button type="button" data-v="http" aria-pressed="true">HTTP</button>
+          <button type="button" data-v="mqtt" aria-pressed="false">MQTT</button>
+          <button type="button" data-v="tcp" aria-pressed="false">TCP</button>
+          <button type="button" data-v="udp" aria-pressed="false">UDP</button>
+        </div>
+      </div>
+      <div class="row">
+        <label class="field grow">Device label<input type="text" id="sDev" value="esp32-aula" spellcheck="false"></label>
+        <label class="field grow">Variable<input type="text" id="sVar" value="temperatura" spellcheck="false"></label>
+      </div>
+      <label class="field" style="margin-bottom:10px">Temperatura real: <b id="sTempTxt">24.0 °C</b>
+        <input type="range" id="sTemp" min="-10" max="60" step="0.5" value="24"></label>
+      <div class="row">
+        <label class="field grow">Token
+          <select class="s" id="sTok"><option value="ok">Correcto</option><option value="bad">Incorrecto</option><option value="empty">Vacío</option></select></label>
+        <label class="field grow">Valor se manda como
+          <select class="s" id="sValMode"><option value="num">Número</option><option value="text">Texto</option></select></label>
+        <label class="field grow">Timestamp
+          <select class="s" id="sTs"><option value="none">Sin timestamp</option><option value="ms">En milisegundos</option><option value="s">En segundos</option></select></label>
+      </div>
+      <div class="switchrow"><span>Wi-Fi del dispositivo</span><label class="sw"><input type="checkbox" id="sWifi" checked aria-label="Wi-Fi"><i></i></label></div>
+      <div class="switchrow"><span>Cifrado TLS (otro puerto)</span><label class="sw"><input type="checkbox" id="sTls" aria-label="TLS"><i></i></label></div>
+      <div class="switchrow"><span>Enviar solo cada 3 s</span><label class="sw"><input type="checkbox" id="sAuto" aria-label="Envío automático"><i></i></label></div>
+      <div class="switchrow" id="subRow"><span>Suscrito a <code>/ventilador/lv</code> (MQTT)</span><label class="sw"><input type="checkbox" id="sSub" checked aria-label="Suscripción MQTT"><i></i></label></div>
+      <div class="cta" style="margin:12px 0 4px">
+        <button class="btn primary" type="button" id="bSend">Enviar ahora</button>
+        <button class="btn line small" type="button" id="bHeat">Ola de calor</button>
+        <button class="btn line small" type="button" id="bBurst">Ráfaga de 10</button>
+        <button class="btn line small" type="button" id="bLV">Pedir último valor</button>
+      </div>
+      <p style="margin:6px 0 0;font-size:.9rem"><b>Ventilador del dispositivo:</b> <svg class="fan" id="fanSvg" viewBox="0 0 32 32" fill="#10315f" aria-hidden="true"><circle cx="16" cy="16" r="3"/><path d="M16 13c0-6 3-10 7-9 3 1 2 6-7 9zM19 16c6 0 10 3 9 7-1 3-6 2-9-7zM16 19c0 6-3 10-7 9-3-1-2-6 7-9zM13 16c-6 0-10-3-9-7 1-3 6-2 9 7z"/></svg> <span id="fanTxt">apagado</span></p>
+    </div>
+
+    <!-- derecha: red + nube -->
+    <div>
+      <div class="panel" style="margin-bottom:18px">
+        <h3>Red y registro <button class="btn line small" type="button" id="bClear" style="margin-left:auto">Limpiar</button></h3>
+        <svg class="map" viewBox="0 0 520 120" role="img" aria-label="Recorrido del paquete: dispositivo, red y Ubidots">
+          <path id="route" class="dash" d="M70 60 H260 H450" fill="none" stroke="#b9e6dd" stroke-width="4" stroke-linecap="round"/>
+          <g><circle cx="70" cy="60" r="30" fill="#10315f"/><text x="70" y="64" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="11" fill="#fff">ESP32</text><text class="node-s" x="70" y="108" text-anchor="middle">dispositivo</text></g>
+          <g><circle id="netNode" cx="260" cy="60" r="26" fill="#e9a96a"/><text x="260" y="64" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="11" fill="#3a2308">Red</text><text class="node-s" id="netLbl" x="260" y="108" text-anchor="middle">Wi-Fi · puerto 80</text></g>
+          <g><circle cx="450" cy="60" r="30" fill="#27c9ac"/><text x="450" y="64" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="11" fill="#fff">Ubidots</text><text class="node-s" x="450" y="108" text-anchor="middle">industrial.api…</text></g>
+          <circle id="pkt" cx="70" cy="60" r="8" fill="#fff" stroke="#10315f" stroke-width="3" opacity="0"/>
+        </svg>
+        <div class="log" id="log" role="log" aria-live="polite"></div>
+      </div>
+
+      <div class="panel">
+        <h3>Ubidots (nube) <span class="pill" id="cloudPill">sin datos</span></h3>
+        <div class="tabs" id="cTabs" role="tablist">
+          <button class="on" type="button" data-k="dev">Devices</button>
+          <button type="button" data-k="dash">Dashboard</button>
+        </div>
+        <div id="cDev"></div>
+        <div id="cDash" hidden>
+          <div class="tiles">
+            <div class="tile"><small>Último valor</small><b id="tLast">—</b><em id="tLastU"></em></div>
+            <div class="tile"><small>Dots guardados</small><b id="tCount">0</b></div>
+            <div class="tile"><small>Control: ventilador</small>
+              <label class="sw" style="margin-top:6px"><input type="checkbox" id="dFan" aria-label="Ventilador en el dashboard"><i></i></label></div>
+          </div>
+          <canvas class="chart" id="chart" width="640" height="300" aria-label="Gráfica de los últimos dots"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sim" style="margin-top:18px">
+    <div class="panel">
+      <h3>Retos para probar <span class="pill" id="chPill">0 de 7</span></h3>
+      <div class="progress" aria-hidden="true"><i id="chBar"></i></div>
+      <ol class="challenge" id="challenge"></ol>
+      <div class="cta" style="margin:12px 0 0"><button class="btn line small" type="button" id="bReset">Reiniciar todo</button></div>
+    </div>
+    <div class="panel fails">
+      <h3>Casos que fallan</h3>
+      <p class="sub" style="color:var(--muted);font-size:.88rem">Elige un error típico, aplícalo y pulsa <b>Enviar ahora</b>. Abajo aparece qué lo causa y cómo se arregla.</p>
+      <div class="row">
+        <label class="field grow">Caso
+          <select class="s" id="fCase">
+            <option value="token">Token incorrecto</option>
+            <option value="wifi">Se cae el Wi-Fi</option>
+            <option value="text">Mandar texto en value</option>
+            <option value="ts">Timestamp en segundos</option>
+            <option value="label">Label con mayúsculas y espacios</option>
+            <option value="tls">TLS activado en el puerto sin cifrar</option>
+          </select></label>
+        <button class="btn dark small" type="button" id="bCase" style="margin-bottom:2px">Aplicar caso</button>
+        <button class="btn line small" type="button" id="bFix" style="margin-bottom:2px">Dejar todo bien</button>
+      </div>
+      <div class="why" id="why" aria-live="polite">Elige un caso y pulsa <b>Aplicar caso</b>.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ QUIZ ============ -->
+<section class="sheet rise" id="quiz">
+  <div class="sec-head">
+    <span class="kicker">6 · Ponte a prueba</span>
+    <h2>Seis preguntas rápidas</h2>
+  </div>
+  <div class="quiz" id="quizBox"></div>
+</section>
+
+<!-- ============ RESUMEN ============ -->
+<section class="sheet rise" id="resumen">
+  <div class="sec-head"><span class="kicker">En resumen</span><h2>Lo que te llevas del viaje</h2></div>
+  <div class="takeaways">
+    <div><b>Todo empieza en el token</b>Se copia de API Credentials, identifica tu cuenta y se trata como una contraseña.</div>
+    <div><b>El destino es el mismo</b><code>industrial.api.ubidots.com</code>; cambian puerto y formato según la ruta.</div>
+    <div><b>HTTP es la puerta fácil</b>Un POST con JSON y una cabecera. Responde con un código que puedes leer.</div>
+    <div><b>MQTT es ida y vuelta</b>Usuario = token. Publicas en <code>/v1.6/devices/&lt;label&gt;</code> y te suscribes para recibir órdenes.</div>
+    <div><b>TCP y UDP son ligeros</b>Un mensaje con barras verticales al puerto 9012. UDP no confirma nada.</div>
+    <div><b>El dispositivo nace solo</b>Si el label no existe, Ubidots lo crea con el primer dato. Cuida mayúsculas y espacios.</div>
+  </div>
+  <h3 style="margin-top:28px">Fuentes consultadas</h3>
+  <ol class="sources">
+    <li><a href="https://help.ubidots.com/developers/send-data-to-ubidots-over-tcp-or-udp">Ubidots, enviar datos por TCP o UDP (puertos, formato y límites)</a></li>
+    <li><a href="https://help.ubidots.com/en/articles/1956065-connect-your-esp32-to-ubidots-over-mqtt-using-micropython">Ubidots, conectar un ESP32 por MQTT (broker, usuario y tópico)</a></li>
+    <li><a href="https://help.ubidots.com/en/articles/1956221-connect-your-esp32-to-ubidots-over-http-using-micropython">Ubidots, conectar un ESP32 por HTTP (URL y cabeceras)</a></li>
+    <li><a href="https://help.ubidots.com/connect-your-devices">Ubidots, guías para conectar tus dispositivos</a></li>
+    <li><a href="https://help.ubidots.com/en/articles/9350714-ubidots-mqtt-broker">Ubidots, broker MQTT (temas, QoS y límites)</a></li>
+    <li><a href="https://docs.ubidots.com/v1.6/reference/tcp-udp-urls">Ubidots, referencia de URLs TCP/UDP</a></li>
+    <li><a href="https://github.com/ubidots/ubidots-esp32">Librería oficial de Ubidots para ESP32 (GitHub)</a></li>
+  </ol>
+</section>
+
+<footer class="sheet">
+  <img src="assets/logo-unifranz.png" alt="Logo de la Universidad Privada Franz Tamayo">
+  <div>Foro: (ABRetos) ¿Como se realiza la conexión con UBIDOT IoT? · Universidad Privada Franz Tamayo · Ingeniería de Sistemas · La Paz - Bolivia · 2026</div>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
