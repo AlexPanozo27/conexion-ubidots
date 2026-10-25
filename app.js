@@ -284,6 +284,7 @@ function gate(kind) {
 function fly(to, color) {
   return new Promise(res => {
     if (matchMedia('(prefers-reduced-motion:reduce)').matches) { res(); return; }
+    setTimeout(() => { el.pkt.setAttribute('opacity', 0); res(); }, 1400);   // respaldo si la pestaña está oculta
     const p = el.pkt, t0 = performance.now(), dur = 700, x0 = 70;
     p.setAttribute('opacity', 1); p.setAttribute('fill', '#fff');
     (function f(t) {
