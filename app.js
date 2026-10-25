@@ -12,6 +12,7 @@ const clock = () => { const d = new Date(); return pad(d.getHours()) + ':' + pad
 const LABEL_RE = /^[a-z0-9_-]+$/;
 const TOKEN_OK = 'BBUS-EJEMPLO-NO-REAL';
 const HOST = 'industrial.api.ubidots.com';
+const RM = matchMedia('(prefers-reduced-motion:reduce)').matches;
 
 /* ---------- aparición y menú ---------- */
 const rises = $$('.rise');
@@ -125,7 +126,8 @@ DAYS.forEach((d, i) => {
 function showDay(i) {
   $$('.day', daysEl).forEach((b, j) => { b.classList.toggle('on', i === j); b.setAttribute('aria-selected', i === j); });
   const d = DAYS[i];
-  $('#stops').innerHTML = d.stops.map((s, k) => '<li><span class="dot">' + (k + 1) + '</span><b>' + s[0] + '<span class="time">' + s[2] + '</span></b><span>' + s[1] + '</span></li>').join('');
+  $('#stops').innerHTML = d.stops.map((s, k) => '<li style="--i:' + k + '"><span class="dot">' + (k + 1) + '</span><b>' + s[0] + '<span class="time">' + s[2] + '</span></b><span>' + s[1] + '</span></li>').join('');
+  const st = $('#stops'); st.classList.remove('go'); void st.offsetWidth; st.classList.add('go');
   $('#dayNote').innerHTML = '<div class="note ' + d.note[0] + '" style="margin-top:16px">' + d.note[1] + '</div>';
 }
 showDay(0);
@@ -194,7 +196,7 @@ const CASES = {
   tls: ['Activaste el cifrado pero sigues apuntando al puerto sin TLS. El servidor espera texto claro y recibe un saludo cifrado.', 'Con TLS usa otro puerto: 443 (HTTP), 8883 (MQTT) o 9812 (TCP/UDP).']
 };
 const el = {
-  log: $('#log'), pkt: $('#pkt'), netLbl: $('#netLbl'), fanSvg: $('#fanSvg'), fanTxt: $('#fanTxt')
+  log: $('#log'), pkt: $('#pkt'), pkt2: $('#pkt2'), pkt3: $('#pkt3'), netLbl: $('#netLbl'), fanSvg: $('#fanSvg'), fanTxt: $('#fanTxt')
 };
 
 function port() { return PORTS[S.proto][S.tls && !S.portMismatch ? 1 : 0]; }
@@ -214,6 +216,17 @@ function mark(id) {
   if (S.done[id]) return;
   S.done[id] = true; renderChallenges();
   const c = CH.find(x => x[0] === id); log('ok', '✔ Reto cumplido: ' + esc(c[1]));
+  const li = $('#challenge').children[CH.indexOf(c)]; burst(li);
+}
+function burst(from) {
+  if (RM || !from) return;
+  const r = from.getBoundingClientRect(), fx = $('#fx'), cols = ['#27c9ac', '#e9a96a', '#10315f', '#ffd08a', '#8df0d6'];
+  const ox = Math.max(40, Math.min(innerWidth - 40, r.left + r.width / 2)), oy = Math.max(70, Math.min(innerHeight - 70, r.top + r.height / 2));
+  for (let i = 0; i < 22; i++) {
+    const s = document.createElement('i'), a = Math.random() * Math.PI * 2, d = 70 + Math.random() * 110;
+    s.style.cssText = 'left:' + ox + 'px;top:' + oy + 'px;--dx:' + Math.cos(a) * d + 'px;--dy:' + (Math.sin(a) * d + 40) + 'px;--rot:' + (Math.random() * 720 - 360) + 'deg;--c:' + cols[i % cols.length];
+    fx.appendChild(s); setTimeout(() => s.remove(), 1100);
+  }
 }
 function renderChallenges() {
   $('#challenge').innerHTML = CH.map((c, i) => '<li class="' + (S.done[c[0]] ? 'done' : '') + '"><span class="b">' + (S.done[c[0]] ? '✓' : i + 1) + '</span><span>' + esc(c[1]) + '</span></li>').join('');
@@ -237,6 +250,8 @@ function writeForm() {
   el.netLbl.textContent = (S.wifi ? 'Wi-Fi' : 'sin Wi-Fi') + ' · puerto ' + port() + (S.tls ? ' TLS' : '');
   el.fanSvg.classList.toggle('on', !!S.devFan); el.fanTxt.textContent = S.devFan ? 'encendido' : 'apagado';
   setTrip(S.proto); fProto.value = S.proto;
+  $('#devNode').classList.toggle('breathe', S.auto);
+  $('#netNode').setAttribute('fill', S.wifi ? '#e9a96a' : '#c5d3d0'); $('#route').style.stroke = S.wifi ? '' : '#f1b3b6';
 }
 ['#sDev', '#sVar', '#sTemp', '#sTok', '#sValMode', '#sTs'].forEach(s => $(s).addEventListener('input', () => { readForm(); writeForm(); }));
 $$('#sProto button').forEach(b => b.addEventListener('click', () => { S.proto = b.dataset.v; writeForm(); }));
@@ -281,18 +296,31 @@ function gate(kind) {
 }
 
 /* animación del paquete */
-function fly(to, color) {
+function pulse(x, color) {
+  const r = $('#ring'); r.setAttribute('cx', x); r.setAttribute('stroke', color);
+  r.classList.remove('go'); void r.getBoundingClientRect(); r.classList.add('go');
+  if (color === '#d9363e') { const m = $('#map'); m.classList.remove('shake'); void m.getBoundingClientRect(); m.classList.add('shake'); }
+}
+function fly(to, color, from) {
+  from = from == null ? 70 : from;
   return new Promise(res => {
-    if (matchMedia('(prefers-reduced-motion:reduce)').matches) { res(); return; }
-    setTimeout(() => { el.pkt.setAttribute('opacity', 0); res(); }, 1400);   // respaldo si la pestaña está oculta
-    const p = el.pkt, t0 = performance.now(), dur = 700, x0 = 70;
-    p.setAttribute('opacity', 1); p.setAttribute('fill', '#fff');
+    const trail = [el.pkt2, el.pkt3];
+    const hide = () => { el.pkt.setAttribute('opacity', 0); trail.forEach(t => t.setAttribute('opacity', 0)); };
+    if (RM) { res(); return; }
+    setTimeout(() => { hide(); res(); }, 1500);   // respaldo si la pestaña está oculta
+    const p = el.pkt, t0 = performance.now(), dur = 700, dir = to >= from ? 1 : -1;
+    p.setAttribute('cx', from); p.setAttribute('opacity', 1); p.setAttribute('fill', '#fff');
+    trail.forEach((t, i) => { t.setAttribute('fill', color); t.setAttribute('opacity', .55 - i * .25); });
     (function f(t) {
-      const k = Math.min(1, (t - t0) / dur); p.setAttribute('cx', x0 + (to - x0) * k);
-      if (k < 1) requestAnimationFrame(f); else { p.setAttribute('fill', color); setTimeout(() => { p.setAttribute('opacity', 0); res(); }, 350); }
+      const k = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - k, 3), x = from + (to - from) * e;
+      p.setAttribute('cx', x);
+      trail.forEach((tr, i) => tr.setAttribute('cx', Math.max(60, Math.min(460, x - dir * (15 + i * 14)))));
+      if (k < 1) requestAnimationFrame(f);
+      else { p.setAttribute('fill', color); pulse(to, color); setTimeout(() => { hide(); res(); }, 320); }
     })(t0);
   });
 }
+const back = ok => fly(70, ok ? '#14a36e' : '#d9363e', 450);
 
 async function send(opts) {
   opts = opts || {};
@@ -303,6 +331,7 @@ async function send(opts) {
   if (!opts.quiet) await fly(g ? (g.stop === 'dev' ? 130 : g.stop === 'net' ? 260 : 450) : 450, g ? '#d9363e' : '#14a36e');
   if (g) {
     log('err', esc(g.msg));
+    if (!opts.quiet && g.stop === 'srv' && S.proto !== 'udp') await back(false);
     if (g.tag === 'token') mark('token');
     if (g.tag === 'wifi') mark('wifi');
     if (g.tag === 'rate') mark('rate');
@@ -312,6 +341,7 @@ async function send(opts) {
   const P = S.proto;
   if (S.valMode === 'text') {
     log('err', esc(P === 'http' ? '← HTTP 400 Bad Request: value debe ser numérico. El texto va en context.' : P === 'mqtt' ? 'El broker recibe el paquete, pero Ubidots descarta el dot: value debe ser numérico.' : P === 'tcp' ? '← Mensaje rechazado: value debe ser numérico.' : 'Sin respuesta: UDP no avisa que el value era texto.'));
+    if (!opts.quiet && P !== 'udp') await back(false);
     return;
   }
   const t = tsNow(), wrongDate = S.ts === 's';
@@ -327,6 +357,7 @@ async function send(opts) {
   log('ok', esc(okMsg) + (born ? ' · <b>dispositivo creado automáticamente</b>' : ''));
   if (wrongDate) log('err', 'Aviso: el timestamp llegó en segundos. Ubidots lo leyó como milisegundos y el dot quedó en enero de 1970.');
   renderCloud();
+  if (!opts.quiet && P !== 'udp') await back(true);
   mark('ok');
   if (P === 'mqtt') mark('mqtt');
 }
@@ -341,11 +372,12 @@ async function askLV() {
   log('dev', '→ ' + P.toUpperCase() + ' · puerto ' + port() + '<br><span style="color:#ffe3b8">' + esc(req).replace(/\n/g, '<br>') + '</span>');
   const g = gate();
   await fly(g ? (g.stop === 'dev' ? 130 : g.stop === 'net' ? 260 : 450) : 450, g ? '#d9363e' : '#14a36e');
-  if (g) { log('err', esc(g.msg)); return; }
+  if (g) { log('err', esc(g.msg)); if (g.stop === 'srv' && P !== 'udp') await back(false); return; }
   const dv = S.cloud[S.dev], fv = dv && dv.vars.ventilador;
   if (!fv) { log('err', esc(P === 'http' ? '← HTTP 404: la variable «ventilador» todavía no existe. Enciende el interruptor en el Dashboard primero.' : 'Ubidots no tiene la variable «ventilador» todavía. Enciende el interruptor en el Dashboard primero.')); return; }
   const last = fv.dots[fv.dots.length - 1].v;
   log('ok', esc('← ' + last) + ' · último valor de ventilador');
+  if (P !== 'udp') await back(true);
   S.devFan = last; writeForm();
   if (P === 'http') mark('lv');
 }
@@ -381,7 +413,7 @@ const fmt = ms => { const d = new Date(ms); return d.getFullYear() < 1980 ? d.to
 function renderCloud() {
   const names = Object.keys(S.cloud);
   const total = names.reduce((a, n) => a + Object.values(S.cloud[n].vars).reduce((b, v) => b + v.dots.length, 0), 0);
-  $('#cloudPill').textContent = total ? total + ' dots' : 'sin datos'; $('#cloudPill').className = 'pill' + (total ? ' ok' : '');
+  $('#cloudPill').textContent = total ? total + (total === 1 ? ' dot' : ' dots') : 'sin datos'; $('#cloudPill').className = 'pill' + (total ? ' ok' : '');
   $('#cDev').hidden = cTab !== 'dev'; $('#cDash').hidden = cTab !== 'dash';
   if (cTab === 'dev') {
     if (!names.length) { $('#cDev').innerHTML = '<div class="empty">Todavía no hay dispositivos. Envía un dato: Ubidots lo creará solo.</div>'; return; }
@@ -394,24 +426,46 @@ function renderCloud() {
       }).join('') + '</tbody></table></div><p style="font-size:.8rem;color:var(--muted);margin:6px 0 0">Amarillo: variables que envía el dispositivo. Verde: la variable <code>ventilador</code>, que escribe el dashboard.</p>';
   } else drawDash();
 }
-function drawDash() {
+const dashData = () => {
   const d = S.cloud[S.dev] || S.cloud[Object.keys(S.cloud)[0]];
   const key = d && (d.vars[S.vr] ? S.vr : Object.keys(d.vars).find(k => k !== 'ventilador'));
-  const dots = d && key ? d.vars[key].dots : [];
-  $('#tCount').textContent = dots.length;
-  $('#tLast').textContent = dots.length ? Number(dots[dots.length - 1].v).toFixed(1) : '—'; $('#tLastU').textContent = dots.length ? '°C' : '';
+  return { d, key, dots: d && key ? d.vars[key].dots : [] };
+};
+const shown = new WeakMap();
+function tweenTo(node, to, dec) {
+  if (to === null) { node.textContent = '—'; shown.set(node, 0); return; }
+  const from = shown.get(node) || 0; shown.set(node, to);
+  if (RM || from === to) { node.textContent = to.toFixed(dec); return; }
+  const t0 = performance.now();
+  (function f(t) { if (shown.get(node) !== to) return; const k = Math.min(1, (t - t0) / 600), e = 1 - Math.pow(1 - k, 3); node.textContent = (from + (to - from) * e).toFixed(dec); if (k < 1) requestAnimationFrame(f); })(t0);
+  setTimeout(() => { if (shown.get(node) === to) node.textContent = to.toFixed(dec); }, 700);
+}
+let chartAnim = 0;
+function drawDash() {
+  const { d, dots } = dashData();
+  tweenTo($('#tCount'), dots.length, 0);
+  tweenTo($('#tLast'), dots.length ? Number(dots[dots.length - 1].v) : null, 1); $('#tLastU').textContent = dots.length ? '°C' : '';
   const fv = d && d.vars.ventilador; $('#dFan').checked = !!(fv && fv.dots[fv.dots.length - 1].v);
+  const id = ++chartAnim, t0 = performance.now();
+  if (RM) { paintDash(1); return; }
+  (function f(t) { if (id !== chartAnim) return; const k = Math.min(1, (t - t0) / 800); paintDash(1 - Math.pow(1 - k, 3)); if (k < 1) requestAnimationFrame(f); })(t0);
+  setTimeout(() => { if (id === chartAnim) paintDash(1); }, 900);
+}
+function paintDash(p) {
+  const { key, dots } = dashData();
   const c = $('#chart'), x = c.getContext('2d'), W = c.width, H = c.height;
   x.clearRect(0, 0, W, H); x.fillStyle = '#fff'; x.fillRect(0, 0, W, H);
   x.font = '12px Poppins, sans-serif'; x.fillStyle = '#5a6b82';
   if (dots.length < 1) { x.textAlign = 'center'; x.fillText('Envía datos para ver la gráfica', W / 2, H / 2); return; }
-  const pts = dots.slice(-20), vs = pts.map(p => p.v), lo = Math.min.apply(null, vs) - 1, hi = Math.max.apply(null, vs) + 1;
+  const pts = dots.slice(-20), vs = pts.map(q => q.v), lo = Math.min.apply(null, vs) - 1, hi = Math.max.apply(null, vs) + 1;
   const L = 44, R = 14, T = 16, B = 26, X = i => L + (pts.length === 1 ? (W - L - R) / 2 : i * (W - L - R) / (pts.length - 1)), Y = v => T + (hi - v) / (hi - lo) * (H - T - B);
   x.strokeStyle = '#e6eef0'; x.lineWidth = 1; x.textAlign = 'right';
   for (let k = 0; k <= 3; k++) { const v = lo + (hi - lo) * k / 3, y = Y(v); x.beginPath(); x.moveTo(L, y); x.lineTo(W - R, y); x.stroke(); x.fillText(v.toFixed(hi - lo < 6 ? 1 : 0), L - 6, y + 4); }
+  x.save(); x.beginPath(); x.rect(0, 0, L + (W - L) * p, H); x.clip();
   x.strokeStyle = '#27c9ac'; x.lineWidth = 3; x.lineJoin = 'round'; x.beginPath();
-  pts.forEach((p, i) => i ? x.lineTo(X(i), Y(p.v)) : x.moveTo(X(i), Y(p.v))); x.stroke();
-  pts.forEach((p, i) => { x.fillStyle = p.odd ? '#d9363e' : '#e9a96a'; x.beginPath(); x.arc(X(i), Y(p.v), 4.5, 0, 7); x.fill(); });
+  pts.forEach((q, i) => i ? x.lineTo(X(i), Y(q.v)) : x.moveTo(X(i), Y(q.v))); x.stroke();
+  pts.forEach((q, i) => { x.fillStyle = q.odd ? '#d9363e' : '#e9a96a'; x.beginPath(); x.arc(X(i), Y(q.v), 4.5, 0, 7); x.fill(); });
+  x.restore();
   x.fillStyle = '#5a6b82'; x.textAlign = 'center'; x.fillText('últimos ' + pts.length + ' dots de ' + key, W / 2, H - 6);
 }
 
@@ -479,4 +533,31 @@ function renderQ() {
   }));
 }
 renderQ();
+
+/* ---------- movimiento ---------- */
+$$('.bag,.routes,.takeaways,.cards,.tiles').forEach(c => { c.classList.add('stag'); Array.from(c.children).forEach((ch, i) => ch.style.setProperty('--i', i)); });
+$$('.hero .trips').forEach(c => Array.from(c.children).forEach((ch, i) => ch.style.setProperty('--i', i)));
+if (RM) { const sv = $('.hero-art'); if (sv && sv.pauseAnimations) sv.pauseAnimations(); }
+const sbar = $('#sbar'), art = $('.hero-art'); let tick = false;
+function onScroll() { tick = false; const h = document.documentElement.scrollHeight - innerHeight; sbar.style.width = (h > 0 ? scrollY / h * 100 : 0) + '%'; if (art && !RM) art.style.setProperty('--py', (Math.min(scrollY, 700) * -.07) + 'px'); }
+addEventListener('scroll', () => { if (!tick) { tick = true; requestAnimationFrame(onScroll); } }, { passive: true }); onScroll();
+const rw = $('#rotWord');
+if (rw && !RM) {
+  const WD = ['HTTP', 'MQTT', 'TCP', 'UDP']; let wi = 0;
+  setInterval(() => {
+    if (document.hidden) return;
+    rw.classList.add('out');
+    setTimeout(() => { wi = (wi + 1) % WD.length; rw.textContent = WD[wi]; rw.classList.remove('out'); rw.classList.add('inw'); setTimeout(() => rw.classList.remove('inw'), 400); }, 260);
+  }, 2200);
+}
+if (!RM && matchMedia('(hover:hover)').matches) {
+  $$('.trip,.route,.takeaways>div,.card').forEach(c => {
+    const lift = c.classList.contains('trip') ? 6 : 4;
+    c.addEventListener('pointermove', e => {
+      const r = c.getBoundingClientRect(), px = (e.clientX - r.left) / r.width - .5, py = (e.clientY - r.top) / r.height - .5;
+      c.style.transform = 'perspective(700px) rotateX(' + (-py * 7).toFixed(2) + 'deg) rotateY(' + (px * 9).toFixed(2) + 'deg) translateY(-' + lift + 'px)';
+    });
+    c.addEventListener('pointerleave', () => { c.style.transform = ''; });
+  });
+}
 })();

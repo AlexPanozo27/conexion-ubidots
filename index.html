@@ -13,6 +13,8 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<div class="scrollbar" id="sbar" aria-hidden="true"></div>
+<div id="fx" aria-hidden="true"></div>
 <a class="skip" href="#equipaje">Saltar al contenido</a>
 
 <div class="topbar">
@@ -28,10 +30,11 @@
   <div class="hero-grid">
     <div>
       <span class="kicker">Foro · Internet de las Cosas</span>
-      <h1>Conecta tu dispositivo con <span class="hl">Ubidots</span></h1>
+      <h1><span class="w"><i style="--i:0">Conecta</i></span> <span class="w"><i style="--i:1">tu</i></span> <span class="w"><i style="--i:2">dispositivo</i></span> <span class="w"><i style="--i:3">con</i></span> <span class="w hl"><i style="--i:4">Ubidots</i></span></h1>
       <p class="lead">Un dispositivo, un token y una ruta. Aquí planeas el viaje de tu dato: eliges cómo viaja (HTTP, MQTT, TCP o UDP), armas el mensaje y lo pruebas en un simulador que puedes tocar.</p>
+      <p class="rot">Hoy tu dato viaja por <span class="rotbox"><b id="rotWord">HTTP</b></span></p>
       <div class="cta">
-        <a class="btn primary" href="#equipaje">Empezar el viaje</a>
+        <a class="btn primary pulse" href="#equipaje">Empezar el viaje</a>
         <a class="btn ghost" href="#simulador">Ir al simulador →</a>
       </div>
     </div>
@@ -41,7 +44,9 @@
         <linearGradient id="hill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7fe6cf"/><stop offset="1" stop-color="#4fcfb4"/></linearGradient>
       </defs>
       <rect width="480" height="380" fill="url(#sky)"/>
-      <circle cx="380" cy="70" r="30" fill="#ffe3b8"/>
+      <circle class="sun" cx="380" cy="70" r="30" fill="#ffe3b8"/>
+      <g class="drift" fill="#fff" opacity=".9"><ellipse cx="90" cy="70" rx="34" ry="11"/><ellipse cx="112" cy="62" rx="20" ry="10"/></g>
+      <g class="drift2" fill="#fff" opacity=".7"><ellipse cx="250" cy="40" rx="28" ry="9"/><ellipse cx="268" cy="34" rx="16" ry="8"/></g>
       <path d="M0 300 Q90 230 190 285 T360 270 T480 290 V380 H0Z" fill="url(#hill)" opacity=".75"/>
       <path d="M0 330 Q120 280 240 325 T480 320 V380 H0Z" fill="#35bfa2"/>
       <!-- placa -->
@@ -52,14 +57,14 @@
         <g fill="#c9d8ee"><rect x="8" y="-6" width="3" height="8"/><rect x="18" y="-6" width="3" height="8"/><rect x="28" y="-6" width="3" height="8"/><rect x="38" y="-6" width="3" height="8"/><rect x="48" y="-6" width="3" height="8"/><rect x="58" y="-6" width="3" height="8"/><rect x="68" y="-6" width="3" height="8"/><rect x="78" y="-6" width="3" height="8"/></g>
         <text x="46" y="44" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="9" fill="#9fd4ff">ESP32</text>
       </g>
-      <g fill="none" stroke="#10315f" stroke-width="3" stroke-linecap="round"><path d="M72 218 q22 -18 44 0"/><path d="M62 206 q32 -28 64 0" opacity=".6"/><path d="M52 194 q42 -38 84 0" opacity=".3"/></g>
+      <g fill="none" stroke="#10315f" stroke-width="3" stroke-linecap="round"><path class="wifi1" d="M72 218 q22 -18 44 0"/><path class="wifi2" d="M62 206 q32 -28 64 0"/><path class="wifi3" d="M52 194 q42 -38 84 0"/></g>
       <!-- ruta -->
       <path class="dash" d="M120 238 C190 130 230 260 300 150 S350 110 372 112" fill="none" stroke="#10315f" stroke-width="3.5" stroke-linecap="round"/>
-      <circle cx="170" cy="190" r="6" fill="#e9a96a"/><circle cx="258" cy="206" r="6" fill="#e9a96a"/>
+      <circle r="6" fill="#e9a96a"><animateMotion dur="4.2s" begin="0s" repeatCount="indefinite" path="M120 238 C190 130 230 260 300 150 S350 110 372 112"/><animate attributeName="opacity" values="0;1;1;0" keyTimes="0;.1;.9;1" dur="4.2s" begin="0s" repeatCount="indefinite"/></circle><circle r="6" fill="#e9a96a"><animateMotion dur="4.2s" begin="1.4s" repeatCount="indefinite" path="M120 238 C190 130 230 260 300 150 S350 110 372 112"/><animate attributeName="opacity" values="0;1;1;0" keyTimes="0;.1;.9;1" dur="4.2s" begin="1.4s" repeatCount="indefinite"/></circle><circle r="6" fill="#e9a96a"><animateMotion dur="4.2s" begin="2.8s" repeatCount="indefinite" path="M120 238 C190 130 230 260 300 150 S350 110 372 112"/><animate attributeName="opacity" values="0;1;1;0" keyTimes="0;.1;.9;1" dur="4.2s" begin="2.8s" repeatCount="indefinite"/></circle>
       <!-- nube -->
       <g transform="translate(332 60)">
         <path d="M30 80 a24 24 0 0 1 4-47 a34 34 0 0 1 64 8 a22 22 0 0 1 2 39Z" fill="#fff" stroke="#10315f" stroke-width="3"/>
-        <g fill="#27c9ac"><rect x="36" y="56" width="10" height="14" rx="2"/><rect x="52" y="46" width="10" height="24" rx="2"/><rect x="68" y="52" width="10" height="18" rx="2" fill="#e9a96a"/><rect x="84" y="40" width="10" height="30" rx="2"/></g>
+        <g fill="#27c9ac"><rect class="bar" x="36" y="56" width="10" height="14" rx="2"/><rect class="bar" x="52" y="46" width="10" height="24" rx="2"/><rect class="bar" x="68" y="52" width="10" height="18" rx="2" fill="#e9a96a"/><rect class="bar" x="84" y="40" width="10" height="30" rx="2"/></g>
       </g>
       <g transform="translate(366 96)"><path d="M12 0 C-4 0 -4 22 12 40 C28 22 28 0 12 0Z" fill="#e9a96a" stroke="#10315f" stroke-width="3" transform="translate(0 -4) scale(.9)"/><circle cx="11" cy="14" r="4" fill="#fff"/></g>
     </svg>
@@ -313,11 +318,13 @@
     <div>
       <div class="panel" style="margin-bottom:18px">
         <h3>Red y registro <button class="btn line small" type="button" id="bClear" style="margin-left:auto">Limpiar</button></h3>
-        <svg class="map" viewBox="0 0 520 120" role="img" aria-label="Recorrido del paquete: dispositivo, red y Ubidots">
+        <svg class="map" id="map" viewBox="0 0 520 120" role="img" aria-label="Recorrido del paquete: dispositivo, red y Ubidots">
           <path id="route" class="dash" d="M70 60 H260 H450" fill="none" stroke="#b9e6dd" stroke-width="4" stroke-linecap="round"/>
-          <g><circle cx="70" cy="60" r="30" fill="#10315f"/><text x="70" y="64" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="11" fill="#fff">ESP32</text><text class="node-s" x="70" y="108" text-anchor="middle">dispositivo</text></g>
+          <g><circle id="devNode" cx="70" cy="60" r="30" fill="#10315f"/><text x="70" y="64" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="11" fill="#fff">ESP32</text><text class="node-s" x="70" y="108" text-anchor="middle">dispositivo</text></g>
           <g><circle id="netNode" cx="260" cy="60" r="26" fill="#e9a96a"/><text x="260" y="64" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="11" fill="#3a2308">Red</text><text class="node-s" id="netLbl" x="260" y="108" text-anchor="middle">Wi-Fi · puerto 80</text></g>
-          <g><circle cx="450" cy="60" r="30" fill="#27c9ac"/><text x="450" y="64" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="11" fill="#fff">Ubidots</text><text class="node-s" x="450" y="108" text-anchor="middle">industrial.api…</text></g>
+          <g><circle id="srvNode" cx="450" cy="60" r="30" fill="#27c9ac"/><text x="450" y="64" text-anchor="middle" font-family="Poppins" font-weight="600" font-size="11" fill="#fff">Ubidots</text><text class="node-s" x="450" y="108" text-anchor="middle">industrial.api…</text></g>
+          <circle id="ring" cx="450" cy="60" r="30" fill="none" stroke="#27c9ac" stroke-width="4" opacity="0"/>
+          <circle id="pkt3" cx="70" cy="60" r="4" fill="#14a36e" opacity="0"/><circle id="pkt2" cx="70" cy="60" r="6" fill="#14a36e" opacity="0"/>
           <circle id="pkt" cx="70" cy="60" r="8" fill="#fff" stroke="#10315f" stroke-width="3" opacity="0"/>
         </svg>
         <div class="log" id="log" role="log" aria-live="polite"></div>
